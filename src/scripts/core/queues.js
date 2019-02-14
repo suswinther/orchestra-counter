@@ -32,31 +32,36 @@ var queues = new function () {
 
             } else {
                 var columns = [
-                    /* Queue name */        {
+                    /* Queue name */
+                    {
                         "sClass": "qm-table__first-column",
                         "mDataProp": "name",
                         "sType": "qm-sort",
                         "sDefaultContent": null
                     },
-                    /* Queue id */          {
+                    /* Queue id */
+                    {
                         "bSearchable": false,
                         "bVisible": false,
                         "mDataProp": "id",
                         "sDefaultContent": null
                     },
-                    /* Queue serviceLevel */          {
+                    /* Queue serviceLevel */
+                    {
                         "bSearchable": false,
                         "bVisible": false,
                         "mDataProp": "serviceLevel",
                         "sDefaultContent": null
                     },
-                    /* Queue waiting num */ {
+                    /* Queue waiting num */
+                    {
                         "sClass": "qm-table__middle-column qm-table__middle-column--right-align",
                         "mDataProp": "customersWaiting",
                         "sType": "qm-sort",
                         "sDefaultContent": null
                     },
-                    /* Queue waiting time */{
+                    /* Queue waiting time */
+                    {
                         "sClass": "qm-table__last-column",
                         "mDataProp": "waitingTime",
                         "sType": "qm-sort",
@@ -122,15 +127,30 @@ var queues = new function () {
                 };
 
                 queuesTable = util.buildTableJson({
-                    "tableId": "queues", "url": url, "rowCallback": rowCallbackAllQueues,
-                    "columns": columns, "filter": false, "headerCallback": headerCallback, "emptyTableLabel": "info.queues.none", "scrollYHeight": "100%", "initFn": allQueuesInitFn
+                    "tableId": "queues",
+                    "url": url,
+                    "rowCallback": rowCallbackAllQueues,
+                    "columns": columns,
+                    "filter": false,
+                    "headerCallback": headerCallback,
+                    "emptyTableLabel": "info.queues.none",
+                    "scrollYHeight": "100%",
+                    "initFn": allQueuesInitFn
                 });
                 queuesTable.fnSort(SORTING);
                 queuesTable.fnAdjustColumnSizing();
 
                 myQueuesTable = util.buildTableJson({
-                    "tableId": "myQueuesTable", "url": url, "rowCallback": rowCallbackMyQueues,
-                    "columns": columns, "filter": false, "headerCallback": headerCallback, "emptyTableLabel": "info.queues.none", "scrollYHeight": "100%", "filterData": myQueuesFilterFn, "initFn": myQueuesInitFn
+                    "tableId": "myQueuesTable",
+                    "url": url,
+                    "rowCallback": rowCallbackMyQueues,
+                    "columns": columns,
+                    "filter": false,
+                    "headerCallback": headerCallback,
+                    "emptyTableLabel": "info.queues.none",
+                    "scrollYHeight": "100%",
+                    "filterData": myQueuesFilterFn,
+                    "initFn": myQueuesInitFn
                 });
                 myQueuesTable.fnSort(SORTING);
                 myQueuesTable.fnAdjustColumnSizing();
@@ -227,14 +247,16 @@ var queues = new function () {
                 queueDetailInitFn(tickets);
             } else {
                 var columns = [
-                    /* Id */                {
+                    /* Id */
+                    {
                         "bSearchable": false,
                         "bVisible": false,
                         "sType": "qm-sort",
                         "mDataProp": "id"
                     },
 
-                    /* Ticket id */         {
+                    /* Ticket id */
+                    {
                         "sClass": "qm-table__first-column",
                         "sType": "qm-sort",
                         "sWidth": "",
@@ -248,19 +270,30 @@ var queues = new function () {
                         "sWidth": "",
                         "sDefaultContent": ""
                     },
-                    /* Actions */      {
+                    /*Customer phone number*/
+                    {
+                        "sClass": "qm-table__middle-column",
+                        "sType": "qm-sort",
+                        "mData": null,
+                        "sWidth": "",
+                        "sDefaultContent": ""
+                    },
+                    /* Actions */
+                    {
                         "sClass": "qm-table__middle-column",
                         "mDataProp": "currentVisitService.serviceExternalName",
                         "sWidth": ""
                     },
-                        /* Appointment time */      {
+                    /* Appointment time */
+                    {
                         "sClass": "qm-table__app-column",
                         // "bVisible": false,
                         "sType": "qm-sort",
                         "sWidth": "",
                         "mDataProp": "appointmentTime"
                     },
-                    /* Waiting time */      {
+                    /* Waiting time */
+                    {
                         "sClass": "qm-table__last-column",
                         "sType": "qm-sort",
                         "sWidth": "",
@@ -271,9 +304,10 @@ var queues = new function () {
                 var headerCallback = function (nHead, aasData, iStart, iEnd, aiDisplay) {
                     nHead.getElementsByTagName('th')[0].innerHTML = jQuery.i18n.prop('info.queue.ticket');
                     nHead.getElementsByTagName('th')[1].innerHTML = jQuery.i18n.prop('info.queue.customer.name');
-                    nHead.getElementsByTagName('th')[2].innerHTML = jQuery.i18n.prop('info.service.name');
-                    nHead.getElementsByTagName('th')[3].innerHTML = jQuery.i18n.prop('info.queue.appointment.time');
-                    nHead.getElementsByTagName('th')[4].innerHTML = jQuery.i18n.prop('info.queue.waiting.time');
+                    nHead.getElementsByTagName('th')[2].innerHTML = 'Phone number';
+                    nHead.getElementsByTagName('th')[3].innerHTML = jQuery.i18n.prop('info.service.name');
+                    nHead.getElementsByTagName('th')[4].innerHTML = jQuery.i18n.prop('info.queue.appointment.time');
+                    nHead.getElementsByTagName('th')[5].innerHTML = jQuery.i18n.prop('info.queue.waiting.time');
                 };
                 var t = new Date();
                 var url = "/rest/servicepoint/branches/" + sessvars.branchId + "/queues/" + sessvars.clickedQueueId + "/visits/full?call=" + t;
@@ -338,19 +372,28 @@ var queues = new function () {
                     if (aData.parameterMap && aData.parameterMap['customers'] !== undefined) {
                         $('td:eq(1)', nRow).html(aData.parameterMap['customers']);
                     }
+                    if (aData.parameterMap && aData.parameterMap['custom1'] !== undefined) {
+                        $('td:eq(2)', nRow).html(aData.parameterMap['custom1']);
+                    }
                     if (aData.appointmentTime) {
-                        $('td:eq(3)', nRow).html(util.formatHHMMSSIntoHHMMA(aData.appointmentTime.split("T")[1]));
+                        $('td:eq(4)', nRow).html(util.formatHHMMSSIntoHHMMA(aData.appointmentTime.split("T")[1]));
                     }
 
-                    $('td:eq(4)', nRow).html(formattedTime);
+                    $('td:eq(5)', nRow).html(formattedTime);
                     return nRow;
                 };
 
                 //create new table since not defined
                 ticketsTable = util.buildTableJson({
-                    "tableId": "tickets", "url": url, "rowCallback": rowCallback,
-                    "columns": columns, "filter": false, "headerCallback": headerCallback, "scrollYHeight": "100%",
-                    "emptyTableLabel": "info.queue.tickets.empty", "initFn": queueDetailInitFn
+                    "tableId": "tickets",
+                    "url": url,
+                    "rowCallback": rowCallback,
+                    "columns": columns,
+                    "filter": false,
+                    "headerCallback": headerCallback,
+                    "scrollYHeight": "100%",
+                    "emptyTableLabel": "info.queue.tickets.empty",
+                    "initFn": queueDetailInitFn
                 });
                 // ticketsTable.fnSort([[1, 'asc']]);
 

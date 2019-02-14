@@ -12,12 +12,10 @@ var util = new function () {
         if (select.removeEventListener) {
             //...in nice browsers...
             select.removeEventListener('onchange', select.onchange, false);
-        }
-        else if (select.detachEvent) {
+        } else if (select.detachEvent) {
             //...in crappy browsers
             select.detachEvent('onchange', select.onchange);
-        }
-        else {
+        } else {
             select.onchange = "";
         }
     };
@@ -27,12 +25,10 @@ var util = new function () {
         if (select.addEventListener) {
             //...in nice browsers...
             select.addEventListener('onchange', select.onchange, false);
-        }
-        else if (select.attachEvent) {
+        } else if (select.attachEvent) {
             //...in crappy browsers
             select.attachEvent('onchange', select.onchange);
-        }
-        else {
+        } else {
             select.onchange = "";
         }
     };
@@ -95,7 +91,11 @@ var util = new function () {
             "sAjaxSource": url,
             "fnServerData": function (sSource, aoData, fnCallback) {
                 $.getJSON(sSource, aoData, function (json) {
-                    fnCallback({ "iTotalRecords": json.length, "iTotalDisplayRecords": json.length, "aaData": json });
+                    fnCallback({
+                        "iTotalRecords": json.length,
+                        "iTotalDisplayRecords": json.length,
+                        "aaData": json
+                    });
                 });
             }
         });
@@ -151,7 +151,11 @@ var util = new function () {
                     if (typeof config.initFn !== 'undefined') {
                         config.initFn(json);
                     }
-                    fnCallback({ "iTotalRecords": json.length, "iTotalDisplayRecords": json.length, "aaData": json });
+                    fnCallback({
+                        "iTotalRecords": json.length,
+                        "iTotalDisplayRecords": json.length,
+                        "aaData": json
+                    });
                 });
             }
         };
@@ -172,6 +176,7 @@ var util = new function () {
             table.fnAdjustColumnSizing();
         });
         return table;
+
     };
 
     /**
@@ -193,8 +198,7 @@ var util = new function () {
                         rowCallback(item[columns.id]);
                     })
                         .append($('<td>')
-                            .append($('<span>' + item[columns.name] + '</span>')
-                            )
+                            .append($('<span>' + item[columns.name] + '</span>'))
                         )
                     )
             }
@@ -237,9 +241,9 @@ var util = new function () {
         var remainder = secsIn % 3600;
         var minutes = parseInt(remainder / 60);
         var seconds = remainder % 60;
-        var formatted = (hours < 10 ? "0" : "") + hours
-            + ":" + (minutes < 10 ? "0" : "") + minutes
-            + ":" + (seconds < 10 ? "0" : "") + seconds;
+        var formatted = (hours < 10 ? "0" : "") + hours +
+            ":" + (minutes < 10 ? "0" : "") + minutes +
+            ":" + (seconds < 10 ? "0" : "") + seconds;
         return formatted;
     };
 
@@ -250,8 +254,8 @@ var util = new function () {
         var hours = parseInt(secsIn / 3600);
         var remainder = secsIn % 3600;
         var minutes = parseInt(remainder / 60);
-        var formatted = (hours < 10 ? "0" : "") + hours
-            + ":" + (minutes < 10 ? "0" : "") + minutes;
+        var formatted = (hours < 10 ? "0" : "") + hours +
+            ":" + (minutes < 10 ? "0" : "") + minutes;
         return formatted;
     };
 
@@ -278,9 +282,9 @@ var util = new function () {
         var hours = timeAsDateObject.getHours();
         var minutes = timeAsDateObject.getMinutes();
         var seconds = timeAsDateObject.getSeconds();
-        var formatted = (hours < 10 ? "0" : "") + hours
-            + ":" + (minutes < 10 ? "0" : "") + minutes
-            + ":" + (seconds < 10 ? "0" : "") + seconds;
+        var formatted = (hours < 10 ? "0" : "") + hours +
+            ":" + (minutes < 10 ? "0" : "") + minutes +
+            ":" + (seconds < 10 ? "0" : "") + seconds;
         return formatted;
     };
 
@@ -307,7 +311,9 @@ var util = new function () {
     this.populateSelect = function (items, select, metaDataProp) {
         $.each(items, function (key, value) {
             select
-                .append($('<option>', { value: typeof metaDataProp !== 'undefined' ? value[metaDataProp] : value.id })
+                .append($('<option>', {
+                    value: typeof metaDataProp !== 'undefined' ? value[metaDataProp] : value.id
+                })
                     .text(value.name));
         });
     };
@@ -598,13 +604,18 @@ var util = new function () {
         // Default Sort is Asc
         array.sort(function (a, b) {
             var multiplier = 0;
-            var ax = [], bx = [];
+            var ax = [],
+                bx = [];
 
             var a = multiplier ? (parseFloat(a[property]) * multiplier).toString() : a[property].toString();
             var b = multiplier ? (parseFloat(b[property]) * multiplier).toString() : b[property].toString();
 
-            a.replace(/(\d+)|(\D+)/g, function (_, $1, $2) { ax.push([$1 || Infinity, $2 || ""]) });
-            b.replace(/(\d+)|(\D+)/g, function (_, $1, $2) { bx.push([$1 || Infinity, $2 || ""]) });
+            a.replace(/(\d+)|(\D+)/g, function (_, $1, $2) {
+                ax.push([$1 || Infinity, $2 || ""])
+            });
+            b.replace(/(\d+)|(\D+)/g, function (_, $1, $2) {
+                bx.push([$1 || Infinity, $2 || ""])
+            });
 
             while (ax.length && bx.length) {
                 var an = ax.shift();
