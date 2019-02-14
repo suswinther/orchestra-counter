@@ -46,12 +46,18 @@ var init = new function () {
         }
         
         initDataTablesConfiguration()
-
         initSessvars();
         customer.init != undefined && typeof customer.init == "function" && customer.init();
         queueViewController.init();
         notesController.init();
+        util.updateServicesExpectedTransactionTimes();
         servicePoint.init();
+
+        // Dates
+        var $dateSelects = $('.qm-date-select');
+        util.populateDateSelect($dateSelects);
+        // Dates end
+
         initKeyboardEvents();
         if (moduleChatEnabled == true) {
             chat.init();

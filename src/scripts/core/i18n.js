@@ -37,6 +37,22 @@ var i18n = new function () {// helper method (that doesnt bomb) for setting inne
         } catch(e) {}
     };
 
+    var i18nSafeWithTitle = function(elementName, propName, padding) {
+        try {
+            var value = propName;
+            if (! (elementName == null || typeof elementName == 'undefined' ||
+                propName == null || typeof propName == 'undefined') &&
+                (jQuery.i18n.prop(propName))) {
+                value = jQuery.i18n.prop(propName);
+            }
+            var element = $("#" + elementName);
+            if (element != null && typeof element != 'undefined') {
+                element.html(value + (typeof padding !== 'undefined' ? padding : ''));
+                element.attr('title', value);
+            }
+        } catch(e) {}
+    };
+
     // prepends the i18n text to the start of the inner html string
     var i18nSafePrepend = function(elementName, propName, padding) {
         try {
@@ -119,7 +135,8 @@ var i18n = new function () {// helper method (that doesnt bomb) for setting inne
         i18nSafe("selectOutcomeLabel", 'info.outcomes');
         i18nSafe("noOfMarksLabel", 'info.custom.mark.quantity', " (");
         i18nSafeAppend("noOfMarksLabel", 'info.custom.mark.maxLbl', "10)");
-        
+        i18nSafe("bookedAppointmentTimeLabel", "info.card.visitCard.appointmentTime");
+
         //header links
         i18nSafe("settingsLink", 'menu.tab.settings');
         i18nSafe("logoutLink", 'button.logout');
@@ -273,10 +290,10 @@ var i18n = new function () {// helper method (that doesnt bomb) for setting inne
         i18nSafe("addDeliveredServiceLabel", 'button.add.delivered.service');
 
         // Service point pool
-        i18nSafe("servicePointPoolModuleLabel", 'info.servicepoint.pool');
+        i18nSafeWithTitle("servicePointPoolModuleLabel", 'info.servicepoint.pool');
 
         // User pool
-        i18nSafe("userPoolModuleLabel", 'info.user.pool');
+        i18nSafeWithTitle("userPoolModuleLabel", 'info.user.pool');
 
         //confirm customer
         i18nSafeAppend("waitingForCustomer", "info.waiting.for.customer.header");
@@ -407,6 +424,7 @@ var i18n = new function () {// helper method (that doesnt bomb) for setting inne
         i18nSafeSelectorAppend('.qm-pool__toggle-btn > span', 'application.sr.toggle');
         
         // Popover
+        i18nSafeSelectorAppend('.js-clear-input-label', 'application.sr.clear.field');
         i18nSafeSelectorAppend('.js-popover-transfer-header', 'info.transfer.selection.header');
         i18nSafeSelectorAppend('.js-popover-queue-header', 'info.transfer.queue.header');
         i18nSafeSelectorAppend('.js-popover-user-pool-header', 'info.transfer.user.pool.header');
@@ -454,6 +472,19 @@ var i18n = new function () {// helper method (that doesnt bomb) for setting inne
         i18nSafeSelectorBtnAppend('.js-edit-customer-save > span', 'action.save.and.add');
         i18nSafeSelectorBtnAppend('.js-update-customer-save > span', 'action.update.info');
         i18nSafeSelectorAppend('.js-clear-field > .sr-only', 'application.sr.clear.field');
+        i18nSafeSelectorAppend('.js-label-dob', 'info.label.dob');
+        i18nSafeSelectorAppend('.qm-form-field--dob option:first-child', 'info.card.addCustomerCard.selectMonth');
+        i18nSafeSelectorAppend('.js-label-month', 'info.label.month');
+        i18nSafeSelectorAppend('.js-label-day', 'info.label.day');
+        i18nSafeSelectorAppend('.js-label-year', 'info.label.year');
+        i18nSafeSelectorAppend('.js-label-year-placeholder', 'info.label.year.format');
+        i18nSafeSelectorAppend('.js-label-day-placeholder', 'info.label.day.format');
+        i18nPlaceholder($('#createdateOfBirthDay'), 'info.placeholder.day');
+        i18nPlaceholder($('#createdateOfBirthYear'), 'info.placeholder.year');
+        i18nPlaceholder($('#editAttacheddateOfBirthDay'), 'info.placeholder.day');
+        i18nPlaceholder($('#editAttacheddateOfBirthYear'), 'info.placeholder.year');
+        i18nPlaceholder($('#editdateOfBirthDay'), 'info.placeholder.day');
+        i18nPlaceholder($('#editdateOfBirthYear'), 'info.placeholder.year');
 
         // Customer form legends
         i18nSafeSelectorAppend('.js-legend-link-existing-customer', 'info.legend.link.existing.customer');
@@ -476,6 +507,9 @@ var i18n = new function () {// helper method (that doesnt bomb) for setting inne
         $Qmatic.components.dropdown.singleOutcomeSelection.update({ placeholder_text_single: jQuery.i18n.prop('info.card.visitCard.addOutcomes') });
         $Qmatic.components.dropdown.deliveredServicesSelection.update({ placeholder_text_single: jQuery.i18n.prop('info.ds.selectDs') });
         $Qmatic.components.dropdown.multiMarkSelection.update({ placeholder_text_single: jQuery.i18n.prop('info.card.marksCard.selectMark') });
+        $Qmatic.components.dropdown.createDobSelection.update({ placeholder_text_single: jQuery.i18n.prop('info.card.addCustomerCard.selectMonth') });
+        $Qmatic.components.dropdown.editDobSelection.update({ placeholder_text_single: jQuery.i18n.prop('info.card.addCustomerCard.selectMonth') });
+        $Qmatic.components.dropdown.editAttachedDobSelection.update({ placeholder_text_single: jQuery.i18n.prop('info.card.addCustomerCard.selectMonth') });
 
 
         // Notes

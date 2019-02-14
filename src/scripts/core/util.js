@@ -20,6 +20,38 @@ var util = new function () {
         }
     };
 
+    this.updateServicesExpectedTransactionTimes = function () {
+        if(sessvars.branchId !== null) {
+            var t = new Date();
+            var url = "branches/" + sessvars.branchId
+                + "/services?call=" + t;
+            var services = spService.get(url);
+            var expectedTransactionTimes = {};
+            for(var i = 0; i < services.length; i++) {
+                expectedTransactionTimes[services[i].id] = services[i].targetTransactionTime;
+            }
+            window.servicesExpectedTransactionTimes = expectedTransactionTimes;
+        }
+    };
+
+    this.setServiceExpectedTransactionTime = function () {
+        if(sessvars.state && sessvars.state.visit && sessvars.state.visit.currentVisitService) {
+            var serviceId = sessvars.state.visit.currentVisitService.serviceId;
+            var $expectedTransactionTime = $("#expectedTransactionTime");
+            if (serviceId) {
+                $expectedTransactionTime.empty().text('(' + this.secondsToMs(window.servicesExpectedTransactionTimes[serviceId]) + ')');
+                $expectedTransactionTime.attr('title', translate.msg('info.card.visitCard.expected.transaction.time'));
+            }
+        }
+    };
+
+    this.clearServiceExpectedTransactionTime = function () {
+        var $expectedTransactionTime = $("#expectedTransactionTime");
+        $expectedTransactionTime.empty();
+        $expectedTransactionTime.attr('title', null);
+
+    };
+
     this.enableOnChange = function (select) {
         //Enable selection box firing of the onchange event...
         if (select.addEventListener) {
@@ -168,15 +200,39 @@ var util = new function () {
             table = $('#' + config.tableId).dataTable(tableConfig);
         }
         if (config.filter && config.customFilter) {
-            $("#" + config.tableId + "_filter input").on('keyup change', function () {
-                table.api().search($(this).val()).draw();
-            })
+            var $searchableContainer = $("#" + config.tableId + "_filter");
+            var $searchInput = $searchableContainer.find("input");
+            var $clearBtn = $searchableContainer.find('.js-table-filter-clear-btn');
+            var _self = this;
+
+            $searchInput.off('keyup change', '**');
+            $searchInput.on('keyup change', function () {
+                var searchVal = $(this).val();
+                _self.toggleClearButton(searchVal, $searchableContainer);
+                table.api().search(searchVal).draw();
+            });
+            $clearBtn.off('click', this._clearSearchField);
+            $clearBtn.on('click', this._clearSearchField.bind(this, $searchInput));
         }
         $(window).bind('resize', function () {
             table.fnAdjustColumnSizing();
         });
         return table;
 
+    };
+
+    this.toggleClearButton = function (searchValue, searchContainer) {
+        if (searchValue !== "") {
+            searchContainer.addClass('qm-search-filter--show-clear-btn');
+        } else {
+            searchContainer.removeClass('qm-search-filter--show-clear-btn');
+        }
+    };
+    
+    this._clearSearchField = function ($searchInput) {
+        var event = $.Event('keyup');
+        $searchInput.val("");
+        $searchInput.trigger(event);
     };
 
     /**
@@ -227,10 +283,14 @@ var util = new function () {
     };
 
     this.formatHHMMSSIntoHHMMA = function (time) {
-        var H = +time.substr(0, 2);
-        var h = H % 12 || 12;
-        var ampm = (H < 12 || H === 24) ? " AM" : " PM";
-        return h + time.substr(2, 3) + ampm;
+        if (sessvars.systemInformation.timeConvention === "AM/PM") {
+            var H = +time.substr(0, 2);
+            var h = H % 12 || 12;
+            var ampm = this.amPmFromHour(H);
+            return h + time.substr(2, 3) + ampm;
+        } else {
+            return time.substr(0, 5);
+        }
     }
 
     this.formatIntoHHMMSS = function (secsIn) {
@@ -246,6 +306,11 @@ var util = new function () {
             ":" + (seconds < 10 ? "0" : "") + seconds;
         return formatted;
     };
+
+    this.amPmFromHour = function (hours) {
+        var ampm = (hours < 12 || hours === 24) ? " AM" : " PM";
+        return ampm;
+    }
 
     this.formatIntoHHMM = function (secsIn) {
         if (secsIn == -1) {
@@ -288,6 +353,30 @@ var util = new function () {
         return formatted;
     };
 
+    this.formatDateIntoHHMM = function (timeAsDateObject) {
+        if (timeAsDateObject == null) {
+            return "";
+        }
+        var hours = timeAsDateObject.getHours();
+        var minutes = timeAsDateObject.getMinutes();
+        if(sessvars.systemInformation.timeConvention === "AM/PM") {
+            var ampm = this.amPmFromHour(hours);
+            var h = hours % 12 || 12;
+            return h + ":" + (minutes < 10 ? "0" : "") + minutes + ampm;
+        } else {
+            return (hours < 10 ? "0" : "") + hours
+            + ":" + (minutes < 10 ? "0" : "") + minutes;
+        }
+    };
+
+    this.formatHHMMToTimeConvention = function(dateAsHHMM) {
+        var time = dateAsHHMM.split(':');
+        var date = new Date();
+        date.setHours(time[0]);
+        date.setMinutes(time[1]);
+        return this.formatDateIntoHHMM(date);
+    }
+
     this.validateProfile = function (profileSel) {
         if (profileSel.val() == -1) {
             util.showError(jQuery.i18n.prop("error.no.profile"));
@@ -317,6 +406,31 @@ var util = new function () {
                     .text(value.name));
         });
     };
+
+    this.populateDateSelect = function ($selects) {
+        var months = [
+            {id: "01", name: translate.msg('info.month.january')},
+            {id: "02", name: translate.msg('info.month.february')},
+            {id: "03", name: translate.msg('info.month.march')},
+            {id: "04", name: translate.msg('info.month.april')},
+            {id: "05", name: translate.msg('info.month.may')},
+            {id: "06", name: translate.msg('info.month.june')},
+            {id: "07", name: translate.msg('info.month.july')},
+            {id: "08", name: translate.msg('info.month.august')},
+            {id: "09", name: translate.msg('info.month.september')},
+            {id: "10", name: translate.msg('info.month.october')},
+            {id: "11", name: translate.msg('info.month.november')},
+            {id: "12", name: translate.msg('info.month.december')},
+        ];
+
+        $selects.each(function(index, select) {
+            var $select = $(select);
+            util.populateSelect(months, $select);
+            $select.trigger('chosen:updated');
+        });
+    }
+
+
 
     this.showMessage = function (text, isError) {
         // Build toast
@@ -539,6 +653,18 @@ var util = new function () {
         var t = new Date(1970, 0, 1);
         t.setSeconds(secs);
         return t.toTimeString().substr(0, 5);
+    };
+
+    this.secondsToMs = function (secs) {
+        var m = Math.floor(secs / 60);
+        var s = secs % 60;
+        if (m < 10) {
+            m = '0' + m;
+        }
+        if (s < 10) {
+            s = '0' + s;
+        }
+        return m + ':' + s;
     };
 
     this.log = function (object) {
